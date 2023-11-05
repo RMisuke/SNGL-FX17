@@ -1,29 +1,30 @@
-package com.snowchen.snglfx17.LaunchCore;
+package com.snowchen.snglfx17.AppCore;
 
 import org.to2mbn.jmccc.auth.OfflineAuthenticator;
 import org.to2mbn.jmccc.launch.LaunchException;
 import org.to2mbn.jmccc.launch.Launcher;
 import org.to2mbn.jmccc.launch.LauncherBuilder;
 import org.to2mbn.jmccc.launch.ProcessListener;
+import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.LaunchOption;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
-import org.to2mbn.jmccc.option.ServerInfo;
+
 import org.to2mbn.jmccc.option.WindowSize;
 import org.to2mbn.jmccc.util.ExtraArgumentsTemplates;
-import com.snowchen.snglfx17.HelloController;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AppCore {
-    public static String Player_Name,Game_Version,Server_Address;
+public class LaunchCore {
+    public static String Player_Name,Game_Version,Server_Address,Java_Environment;
     public static String Game_Directory = ".minecraft";
     public static int Max_Mem,Server_Port;
     public static boolean FullScreen_Set = false;
     private static LaunchOption option;
 
-    public AppCore () throws IOException ,LaunchException{
+    public LaunchCore() throws IOException ,LaunchException{
         Launcher launcher = LauncherBuilder.create()
                 .printDebugCommandline(true) //是否将启动参数输出至控制台
                 .nativeFastCheck(true) //是否开启快速检查Natives文件
@@ -53,6 +54,9 @@ public class AppCore {
     }
     private void GameOption()//游戏设置定义
     {
+        File javaEnvir = new File("/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home/bin/java");//设置Java目录
+        option.setJavaEnvironment(new JavaEnvironment(javaEnvir));
+
         option.setMaxMemory(Max_Mem); //最大内存
         option.setMinMemory(0); //最小内存
         if (FullScreen_Set){

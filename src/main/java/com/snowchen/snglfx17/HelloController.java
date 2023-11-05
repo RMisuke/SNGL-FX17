@@ -1,17 +1,13 @@
 package com.snowchen.snglfx17;
 
-import com.snowchen.snglfx17.LaunchCore.AppCore;
+import com.snowchen.snglfx17.AppCore.LaunchCore;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import java.util.Arrays;
-import java.util.Timer;
-import java.util.TimerTask;
 import org.to2mbn.jmccc.launch.LaunchException;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 
 import java.io.*;
 import java.util.Objects;
@@ -20,17 +16,18 @@ public class HelloController {
 
     @FXML//启动按钮实现
     protected void StartButtonClick() {
-        AppCore.Player_Name = PlayerNameInput.getText();
-        AppCore.Max_Mem = Integer.parseInt(MaxMemInput.getText());
-        AppCore.Game_Version = VersionChoice.getSelectionModel().getSelectedItem();
+        LaunchCore.Player_Name = PlayerNameInput.getText();
+        LaunchCore.Max_Mem = Integer.parseInt(MaxMemInput.getText());
+        LaunchCore.Game_Version = VersionChoice.getSelectionModel().getSelectedItem();
+        LaunchCore.Java_Environment = SetJavaEnviroment.getText();
         System.out.println(SetFullScreen.isSelected());
-        AppCore.FullScreen_Set = SetFullScreen.isSelected();
-        if(!Objects.equals(SetGameDirectory.getText(), AppCore.Game_Directory)){
-            AppCore.Game_Directory = SetGameDirectory.getText();
+        LaunchCore.FullScreen_Set = SetFullScreen.isSelected();
+        if(!Objects.equals(SetGameDirectory.getText(), LaunchCore.Game_Directory)){
+            LaunchCore.Game_Directory = SetGameDirectory.getText();
         }
-        System.out.println("游戏目录"+AppCore.Game_Directory);
+        System.out.println("游戏目录"+ LaunchCore.Game_Directory);
         try {
-                new AppCore();
+                new LaunchCore();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (LaunchException e) {
@@ -57,78 +54,86 @@ public class HelloController {
     private Label LauncherInfo;
 
     @FXML
+    private Button ReloadGameDirectory;
+
+    @FXML//刷新游戏文件夹按钮
+    protected void ReloadGameDirectoryClick(){
+        InitializeVersionChoice();
+        System.out.println("游戏文件夹已重载");
+    }
+    @FXML
+    private TextField SetJavaEnviroment;
+
+    @FXML
     private ChoiceBox<String> VersionChoice;//版本选择下拉框
     private String[] VersionList = {};
 
     public void initialize() {
         InitializeVersionChoice();
-        LauncherInfo.setText("SnowのLauncher ver 0.1 Alpha");
-
+        LauncherInfo.setText("SNGL ver 0.2 Alpha");
+        // 将标准输出流重定向到TextArea
+        System.setOut(new ConsoleOutputStream(System.out, LogArea::appendText));
+        // 将标准错误流重定向到TextArea
+        System.setErr(new ConsoleOutputStream(System.err, LogArea::appendText));
 
     }
     private void InitializeVersionChoice() {
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
+        // 指定目录路径
+        String directoryPath = SetGameDirectory.getText()+"/versions/";
+        System.out.println(directoryPath);
+        // 创建File对象，表示目录
+        File directory = new File(directoryPath);
+
+        // 确保指定的路径确实是一个目录
+        if (!directory.isDirectory()) {
+            System.out.println("指定的路径不是一个目录");
+            return;
+        }
+
+        // 使用FilenameFilter过滤出目录（而不是文件）
+        FilenameFilter directoryFilter = new FilenameFilter() {
             @Override
-            public void run() {
-                String directoryPath = SetGameDirectory.getText()+"/versions/";
-                System.out.println(directoryPath);
-
-                // 创建File对象，表示目录
-                File directory = new File(directoryPath);
-
-                // 使用FilenameFilter过滤出目录（而不是文件）
-                FilenameFilter directoryFilter = new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        // 接收目录，排除文件
-                        return new File(dir, name).isDirectory();
-                    }
-                };
-
-                // 获取目录下的所有目录名
-                String[] VersionList = directory.list(directoryFilter);
-                // 确保指定的路径确实是一个目录
-                if (!directory.isDirectory()) {
-                    System.out.println("指定的路径不是一个目录");
-                    //return;
-                }
-                // 输出获取到的目录名
-                for (String directoryName : VersionList) {
-                    System.out.println(directoryName);
-                }
-
-                ObservableList<String> optionList = FXCollections.observableArrayList(VersionList);
-                VersionChoice.setItems(optionList);
-                VersionChoice.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue != null) {
-                        System.out.println("Selected: " + newValue);
-                    }
-                    System.out.println(AppCore.Game_Version);
-                });
-
+            public boolean accept(File dir, String name) {
+                // 接收目录，排除文件
+                return new File(dir, name).isDirectory();
             }
-        }, 0, 5000); // 首次运行延迟0毫秒，然后每5000毫秒运行一次
+        };
+
+        // 获取目录下的所有目录名
+        String[] VersionList = directory.list(directoryFilter);
+
+        // 输出获取到的目录名
+        for (String directoryName : VersionList) {
+            System.out.println(directoryName);
+        }
+        ObservableList<String> optionList = FXCollections.observableArrayList(VersionList);
+        VersionChoice.setItems(optionList);
+        VersionChoice.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                System.out.println("Selected: " + newValue);
+            }
+            System.out.println("游戏版本:"+ LaunchCore.Game_Version);
+        });
     }
 
     @FXML
     private TextArea LogArea;//日志输出框
 
-    @FXML
-    public void LogCatch() {
-        try {
-            // 执行日志捕获逻辑，这里只是示例，捕获控制台输出
-            ProcessBuilder builder = new ProcessBuilder("java", "-version");
-            Process process = builder.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                LogArea.appendText(line + "\n");
-            }
-        } catch (Exception e) {
-            LogArea.appendText("日志捕获出现异常：\n" + e.getMessage());
+    private static class ConsoleOutputStream extends java.io.PrintStream {
+        private java.io.PrintStream original;
+        private java.util.function.Consumer<String> consumer;
+
+        public ConsoleOutputStream(java.io.PrintStream original, java.util.function.Consumer<String> consumer) {
+            super(original);
+            this.original = original;
+            this.consumer = consumer;
         }
 
+        @Override
+        public void println(final String x) {
+            original.println(x); // 保持原始输出功能
+            Platform.runLater(() -> consumer.accept(x + "\n")); // 在JavaFX应用程序线程上更新TextArea
+        }
     }
     @FXML
     private CheckBox SetFullScreen;

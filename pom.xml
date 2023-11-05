@@ -63,6 +63,11 @@
             <artifactId>jmccc-mojang-api</artifactId>
             <version>3.1.4</version>
         </dependency>
+        <dependency>
+            <groupId>dev.3-3</groupId>
+            <artifactId>jmccc-mcdownloader</artifactId>
+            <version>3.1.4</version>
+        </dependency>
     </dependencies>
 
     <build>

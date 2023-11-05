@@ -13,7 +13,7 @@ public class HelloApplication extends Application {
         Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 600, 400);
-        stage.setTitle("SnowのLauncher");
+        stage.setTitle("SNGL Alpha Test");
         stage.setScene(scene);
         stage.show();
     }
