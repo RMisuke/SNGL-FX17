@@ -5,6 +5,8 @@ module com.snowchen.snglfx17 {
     requires jmccc;
     requires java.desktop;
     requires jmccc.mcdownloader;
+    requires com.github.oshi;
+    requires hutool.all;
 
 
     opens com.snowchen.snglfx17 to javafx.fxml;
