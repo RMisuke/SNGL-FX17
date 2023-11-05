@@ -18,7 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LaunchCore {
-    public static String Player_Name,Game_Version,Server_Address,Java_Environment;
+    public static String Game_Version,Server_Address,Java_Environment = "";
+    public static String Player_Name = "";
     public static String Game_Directory = ".minecraft";
     public static int Max_Mem,Server_Port;
     public static boolean FullScreen_Set = false;

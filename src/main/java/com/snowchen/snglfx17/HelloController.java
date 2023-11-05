@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert;
 
 import org.to2mbn.jmccc.launch.LaunchException;
 
@@ -13,26 +14,42 @@ import java.io.*;
 import java.util.Objects;
 
 public class HelloController {
-
-    @FXML//启动按钮实现
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("错误");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+        @FXML//启动按钮实现
     protected void StartButtonClick() {
-        LaunchCore.Player_Name = PlayerNameInput.getText();
-        LaunchCore.Max_Mem = Integer.parseInt(MaxMemInput.getText());
-        LaunchCore.Game_Version = VersionChoice.getSelectionModel().getSelectedItem();
-        LaunchCore.Java_Environment = SetJavaEnviroment.getText();
-        System.out.println(SetFullScreen.isSelected());
-        LaunchCore.FullScreen_Set = SetFullScreen.isSelected();
-        if(!Objects.equals(SetGameDirectory.getText(), LaunchCore.Game_Directory)){
-            LaunchCore.Game_Directory = SetGameDirectory.getText();
-        }
-        System.out.println("游戏目录"+ LaunchCore.Game_Directory);
-        try {
-                new LaunchCore();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (LaunchException e) {
-                throw new RuntimeException(e);
+            LaunchCore.Player_Name = PlayerNameInput.getText();
+            System.out.println(LaunchCore.Player_Name);
+        if (!Objects.equals(LaunchCore.Player_Name, ""))
+        {
+            LaunchCore.Max_Mem = Integer.parseInt("2048");
+            LaunchCore.Game_Version = VersionChoice.getSelectionModel().getSelectedItem();
+            System.out.println("选择的游戏版本:"+LaunchCore.Game_Version);
+            if (!Objects.equals(LaunchCore.Game_Version, null)){
+                LaunchCore.Java_Environment = SetJavaEnviroment.getText();
+                System.out.println(SetFullScreen.isSelected());
+                LaunchCore.FullScreen_Set = SetFullScreen.isSelected();
+                if(!Objects.equals(SetGameDirectory.getText(), LaunchCore.Game_Directory)){
+                    LaunchCore.Game_Directory = SetGameDirectory.getText();
+                }
+                System.out.println("游戏目录"+ LaunchCore.Game_Directory);
+                try {
+                    new LaunchCore();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (LaunchException e) {
+                    throw new RuntimeException(e);
+                }
             }
+            showAlert("游戏版本不能为空");
+            return;
+        }
+            showAlert("用户名不能为空");
 
     }
     @FXML
@@ -51,9 +68,6 @@ public class HelloController {
     private TextField SetGameDirectory;
 
     @FXML
-    private Label LauncherInfo;
-
-    @FXML
     private Button ReloadGameDirectory;
 
     @FXML//刷新游戏文件夹按钮
@@ -70,7 +84,6 @@ public class HelloController {
 
     public void initialize() {
         InitializeVersionChoice();
-        LauncherInfo.setText("SNGL ver 0.2 Alpha");
         // 将标准输出流重定向到TextArea
         System.setOut(new ConsoleOutputStream(System.out, LogArea::appendText));
         // 将标准错误流重定向到TextArea
@@ -87,6 +100,7 @@ public class HelloController {
         // 确保指定的路径确实是一个目录
         if (!directory.isDirectory()) {
             System.out.println("指定的路径不是一个目录");
+            showAlert("指定的路径不是一个目录");
             return;
         }
 
@@ -112,7 +126,6 @@ public class HelloController {
             if (newValue != null) {
                 System.out.println("Selected: " + newValue);
             }
-            System.out.println("游戏版本:"+ LaunchCore.Game_Version);
         });
     }
 

@@ -12,7 +12,7 @@ public class HelloApplication extends Application {
     public void start(Stage stage) throws IOException {
         Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+        Scene scene = new Scene(fxmlLoader.load(), 675, 450);
         stage.setTitle("SNGL Alpha Test");
         stage.setScene(scene);
         stage.show();
